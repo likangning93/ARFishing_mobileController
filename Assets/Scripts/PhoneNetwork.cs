@@ -5,20 +5,30 @@ public class PhoneNetwork : Photon.PunBehaviour
 {
 
     float accelMax = 0.0f;
+    Vector3 accelMaxDir;
 
     void OnGUI()
     {
         GUILayout.Label(PhotonNetwork.connectionStateDetailed.ToString());
         GUILayout.Label("Room Name: " + roomName);
-        GUILayout.Label("Accelerometer: " + Input.acceleration.ToString());
+        GUILayout.Label("Accelerometer: " + Input.acceleration.ToString() + " m: " + Input.acceleration.magnitude);
 
-        accelMax = Mathf.Max(accelMax, Input.acceleration.magnitude);
-        GUILayout.Label("Max Accel: " + accelMax);
+        if (accelMax < Input.acceleration.magnitude)
+        {
+            accelMax = Input.acceleration.magnitude;
+            accelMaxDir = Input.acceleration;
+        }
+        GUILayout.Label("Max Accel: " + accelMax + " Dir: " + accelMaxDir.ToString());
 
         GUILayout.Label("Gyro: " + Input.gyro.attitude.ToString());
     }
 
     string roomName;
+
+    void Awake()
+    {
+        Input.gyro.enabled = true;
+    }
 
     void Start()
     {
@@ -30,6 +40,7 @@ public class PhoneNetwork : Photon.PunBehaviour
         if (Input.GetMouseButtonUp(0))
         {
             accelMax = 0.0f;
+            accelMaxDir = Vector3.zero;
         }
     }
 
