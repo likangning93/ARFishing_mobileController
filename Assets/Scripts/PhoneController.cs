@@ -11,6 +11,8 @@ public class PhoneController : MonoBehaviour {
     int upRightDelay;
     bool orbRetrieved;
 
+    bool inCastingCone = false; // boolean for whether or not the phone's angle is within the "casting" cone of orientation
+
     float[] accelSignal = new float[3];
     float reeledIn;
 
@@ -40,8 +42,18 @@ public class PhoneController : MonoBehaviour {
 
         // check acceleration. if phone is pointing up and moves faster than activationAcceleration
         float accelMagX = Mathf.Abs(acceleration.x);
+        bool inCastingConeNow = acceleration.y < -0.5f;
+        if (inCastingConeNow && accelMagX < activationAcceleration) upRightDelay = upRightDelayMax;
 
-        if (acceleration.y < -0.5f && accelMagX < activationAcceleration) upRightDelay = upRightDelayMax;
+        // ping the Hololens if the phone's orientation enters/exits the casting cone.
+        if (inCastingCone != inCastingConeNow)
+        {
+            inCastingCone = inCastingConeNow;
+            byte evCode = 3;    // my event 3.
+            bool reliable = true;
+            PhotonNetwork.RaiseEvent(evCode, inCastingConeNow, reliable, null);
+        }
+
 
         if (listeningToAccelerometer)
         {
@@ -55,7 +67,7 @@ public class PhoneController : MonoBehaviour {
             mainCamera.backgroundColor = Color.black;
         }
 
-
+        // handler for "in swing"
         if (listeningToAccelerometer)
         {
             speed += acceleration.magnitude * Time.deltaTime;
@@ -67,6 +79,7 @@ public class PhoneController : MonoBehaviour {
                 orbRetrieved = false;
             }
         }
+        // handler for "starting swing"
         else if (accelMagX > activationAcceleration && upRightDelay > 0 && orbRetrieved)
         {
             speed += acceleration.magnitude * Time.deltaTime;
