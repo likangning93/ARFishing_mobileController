@@ -109,6 +109,7 @@ public class PhoneController : MonoBehaviour {
 
         bool reliable = true;
         PhotonNetwork.RaiseEvent(evCode, accelSignal, reliable, null);
+        Vibration.Vibrate(100);
     }
 
     void Reel()
