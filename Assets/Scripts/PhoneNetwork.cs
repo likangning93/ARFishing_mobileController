@@ -6,6 +6,7 @@ public class PhoneNetwork : Photon.PunBehaviour
 
     float accelMax = 0.0f;
     Vector3 accelMaxDir;
+    Vector3 mousePos;
 
     void OnGUI()
     {
@@ -21,6 +22,7 @@ public class PhoneNetwork : Photon.PunBehaviour
         GUILayout.Label("Max Accel: " + accelMax + " Dir: " + accelMaxDir.ToString());
 
         GUILayout.Label("Gyro: " + Input.gyro.attitude.ToString());
+        GUILayout.Label("MousePos: " + mousePos.ToString());
     }
 
     string roomName;
@@ -41,6 +43,7 @@ public class PhoneNetwork : Photon.PunBehaviour
         {
             accelMax = 0.0f;
             accelMaxDir = Vector3.zero;
+            mousePos = Input.mousePosition;
         }
     }
 

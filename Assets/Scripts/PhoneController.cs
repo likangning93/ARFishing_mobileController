@@ -19,8 +19,11 @@ public class PhoneController : MonoBehaviour {
     bool listeningToAccelerometer;
     float speed;
 
-	// Use this for initialization
-	void Start () {
+    bool mouseDown = false;
+    Vector3 mouseDown_pos = new Vector3();
+
+    // Use this for initialization
+    void Start () {
         Screen.orientation = ScreenOrientation.Portrait;
         orbRetrieved = true;
         listeningToAccelerometer = false;
@@ -38,6 +41,7 @@ public class PhoneController : MonoBehaviour {
 
         if (!activated) return;
 
+        /** accelerometer stuff **/
         Vector3 acceleration = Input.acceleration;
 
         // check acceleration. if phone is pointing up and moves faster than activationAcceleration
@@ -86,10 +90,25 @@ public class PhoneController : MonoBehaviour {
             listeningToAccelerometer = true;
         }
 
+
+        /** reeling stuff **/
+
+        if (!mouseDown && Input.GetMouseButtonDown(0) && !orbRetrieved)
+        {
+            mouseDown_pos = Input.mousePosition;
+            mouseDown = true;
+        }
+
         if (Input.GetMouseButtonUp(0))
         {
-            mainCamera.backgroundColor = Color.red;
-            Reel();
+            Vector3 mouseUp_pos = Input.mousePosition;
+            if ((mouseUp_pos - mouseDown_pos).magnitude / (float) Screen.height > 0.2f &&
+                mouseUp_pos.y < mouseDown_pos.y)
+            {
+                mainCamera.backgroundColor = Color.red;
+                Reel();
+            }
+            mouseDown = false;
         }
     }
 
@@ -109,7 +128,7 @@ public class PhoneController : MonoBehaviour {
 
         bool reliable = true;
         PhotonNetwork.RaiseEvent(evCode, accelSignal, reliable, null);
-        Vibration.Vibrate(100);
+        Vibration.Vibrate(50);
     }
 
     void Reel()
@@ -117,6 +136,7 @@ public class PhoneController : MonoBehaviour {
         byte evCode = 1;
         bool reliable = true;
         PhotonNetwork.RaiseEvent(evCode, null, reliable, null);
+        Vibration.Vibrate(50);
     }
 
     // setup our OnEvent as callback:
@@ -131,6 +151,11 @@ public class PhoneController : MonoBehaviour {
         if (eventcode == 2) // signals cast readiness
         {
             orbRetrieved = (bool)content;
+        }
+
+        if (eventcode == 4) // fish has bit, or fish has escaped
+        {
+            Vibration.Vibrate(200);
         }
     }
 }
