@@ -99,7 +99,7 @@ public class PhoneController : MonoBehaviour {
             mouseDown = true;
         }
 
-        if (Input.GetMouseButtonUp(0))
+        if (Input.GetMouseButtonUp(0) && mouseDown)
         {
             Vector3 mouseUp_pos = Input.mousePosition;
             if ((mouseUp_pos - mouseDown_pos).magnitude / (float) Screen.height > 0.2f &&
